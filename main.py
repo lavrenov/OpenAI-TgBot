@@ -7,9 +7,9 @@ from openai import OpenAI
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-model_gpt = "gpt-3.5-turbo-0125"
-max_tokens = 4000
-temperature = 0.2
+model_gpt = os.getenv("MODEL_GPT")
+max_tokens = os.getenv("MAX_TOKENS") if os.getenv("MAX_TOKENS") else None
+temperature = os.getenv("TEMPERATURE") if os.getenv("TEMPERATURE") else None
 
 bot = telebot.TeleBot(token=os.getenv("TELEGRAM_BOT_TOKEN"), parse_mode="MARKDOWN")
 allowed_users = os.getenv("ALLOWED_USERS")
