@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup SSH Key
-        uses: webfactory/ssh-agent@v0.5.0
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -28,7 +28,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             kill $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}')
-            cd ${{ secrets.PROJECT_FOLDER }}
+#            cd ${{ secrets.PROJECT_FOLDER }}
 #            git checkout main
 #            git pull
 #            python3 -m venv venv
