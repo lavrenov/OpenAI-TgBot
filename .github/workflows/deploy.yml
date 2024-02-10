@@ -27,7 +27,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            ps aux | grep "[O]penAI-TgBot" | awk '{print $2}' | xargs kill -9;
+            ID=$(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}');
+            if [ $ID ]; then kill -9 $ID; fi;
 #            cd ${{ secrets.PROJECT_FOLDER }};
 #            git checkout main;
 #            git pull;
