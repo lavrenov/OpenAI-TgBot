@@ -27,10 +27,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            [ ! -z $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}') ] && kill -9 $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}');
-            cd ${{ secrets.PROJECT_FOLDER }};
-            git pull origin main;
-            python3 -m venv venv;
-            source venv/bin/activate;
-            pip install -r requirements.txt;
+            [ ! -z $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}') ] && kill -9 $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}')
+            cd ${{ secrets.PROJECT_FOLDER }}
+            git pull origin main
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
             nohup ${{ secrets.PROJECT_FOLDER }}/venv/bin/python ${{ secrets.PROJECT_FOLDER }}/main.py < /dev/null &> /dev/null &
