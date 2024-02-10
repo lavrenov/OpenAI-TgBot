@@ -27,7 +27,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            [ ! -z $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}') ] && kill -9 $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}')
+            BOTID=$(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}')
+            [ ! -z ${BOTID} ] && kill -9 ${BOTID}
             cd ${{ secrets.PROJECT_FOLDER }}
             git pull origin main
             python3 -m venv venv
