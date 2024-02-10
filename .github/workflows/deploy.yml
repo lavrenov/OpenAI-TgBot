@@ -2,9 +2,9 @@ name: Deploy to Remote Server
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -15,19 +15,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up SSH
-        uses: D3rHase/ssh-command-action@v0.2.2
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.5.0
         with:
-          host: ${{secrets.SSH_HOST}}
-          user: ${{secrets.SSH_USER}}
-          private_key: ${{secrets.SSH_PRIVATE_KEY}}
-          host_fingerprint: ${{secrets.SSH_FINGERPRINT}}
-          command: |
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy code
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             kill $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}');
-            cd ${{ secrets.PROJECT_FOLDER}};
+            cd ${{ secrets.PROJECT_FOLDER }};
             git checkout main;
             git pull;
             python3 -m venv venv;
             source venv/bin/activate;
             pip install -r requirements.txt
-            nohup ${{ secrets.PROJECT_FOLDER}}/venv/bin/python ${{ secrets.PROJECT_FOLDER}}/main.py < /dev/null &> /dev/null;
+            nohup ${{ secrets.PROJECT_FOLDER }}/venv/bin/python ${{ secrets.PROJECT_FOLDER }}/main.py < /dev/null &> /dev/null &;
