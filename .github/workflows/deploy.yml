@@ -29,9 +29,9 @@ jobs:
           script: |
             ID=$(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}');
             if [ $ID ]; then kill -9 $ID; fi;
-#            cd ${{ secrets.PROJECT_FOLDER }};
-#            git checkout main;
-#            git pull;
+            cd ${{ secrets.PROJECT_FOLDER }};
+            git checkout main;
+            git pull;
 #            python3 -m venv venv;
 #            source venv/bin/activate;
 #            pip install -r requirements.txt;
