@@ -29,9 +29,9 @@ jobs:
           script: |
             kill $(ps aux | grep "[O]penAI-TgBot" | awk '{print $2}')
             cd ${{ secrets.PROJECT_FOLDER }}
-            git checkout main
-            git pull
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install -r requirements.txt
-            nohup ${{ secrets.PROJECT_FOLDER }}/venv/bin/python ${{ secrets.PROJECT_FOLDER }}/main.py < /dev/null &> /dev/null &
+#            git checkout main
+#            git pull
+#            python3 -m venv venv
+#            source venv/bin/activate
+#            pip install -r requirements.txt
+#            nohup ${{ secrets.PROJECT_FOLDER }}/venv/bin/python ${{ secrets.PROJECT_FOLDER }}/main.py < /dev/null &> /dev/null &
