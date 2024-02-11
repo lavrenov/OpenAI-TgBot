@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            pkill -f '${{ secrets.PROJECT_FOLDER }}' 1>&- 2>&-
+            pkill -f '${{ secrets.PROJECT_FOLDER }}' || true
             cd ${{ secrets.PROJECT_FOLDER }}
             git pull origin main
             python3 -m venv venv
