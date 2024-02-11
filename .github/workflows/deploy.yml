@@ -28,6 +28,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             pkill -f '${{ secrets.PROJECT_FOLDER }}' || true
+            if [ $? -eq 143 ]; then exit 0; fi
             cd ${{ secrets.PROJECT_FOLDER }}
             git pull origin main
             python3 -m venv venv
