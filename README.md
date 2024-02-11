@@ -1,5 +1,10 @@
 # OpenAI Telegram Bot
 
+[![Build](https://github.com/lavrenov/OpenAI-TgBot/workflows/Build/badge.svg)](https://github.com/lavrenov/OpenAI-TgBot)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/lavrenov/OpenAI-TgBot?label=version)](https://github.com/lavrenov/OpenAI-TgBot)
+[![GitHub repo size](https://img.shields.io/github/repo-size/lavrenov/OpenAI-TgBot)](https://github.com/lavrenov/OpenAI-TgBot)
+[![GitHub last commit](https://img.shields.io/github/last-commit/lavrenov/OpenAI-TgBot)](https://github.com/lavrenov/OpenAI-TgBot/commits/main)
+
 ## How this is work
 
 1. **Activate virtual environment:**
