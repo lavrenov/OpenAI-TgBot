@@ -1,5 +1,7 @@
 import logging
 import os
+import sqlite3
+from datetime import datetime
 
 import telebot
 from dotenv import load_dotenv
@@ -16,7 +18,17 @@ bot = telebot.TeleBot(token=os.getenv("TELEGRAM_BOT_TOKEN"), parse_mode="MARKDOW
 allowed_users = os.getenv("ALLOWED_USERS")
 max_tg_msg_length = 4096
 
-messages = []
+conn = sqlite3.connect('main.db', check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER,
+        role TEXT,
+        content TEXT,
+        date DATETIME
+    )''')
+conn.commit()
 
 logging.basicConfig(filename="main.log", level=logging.INFO,
                     format="[%(asctime)s] [%(name)s] [%(levelname)s] > %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -38,12 +50,7 @@ def restricted_access(func):
     return wrapper
 
 
-def send_to_gpt(message):
-    messages.append({
-        "role": "user",
-        "content": message
-    })
-
+def send_to_gpt(messages):
     completion = client.chat.completions.create(
         model=model_gpt,
         messages=messages,
@@ -51,12 +58,7 @@ def send_to_gpt(message):
         temperature=temperature,
     )
 
-    message = {
-        "role": completion.choices[0].message.role,
-        "content": completion.choices[0].message.content
-    }
-
-    messages.append(message)
+    return completion
 
 
 @bot.message_handler(commands=['start'])
@@ -70,14 +72,37 @@ def start(message):
 @bot.message_handler(func=lambda message: message.text is not None and '/' not in message.text)
 @restricted_access
 def echo_message(message):
-    # user_id = message.from_user.id
     try:
-        send_to_gpt(message.text)
-        response_text = messages[-1]["content"]
+        user_id = message.from_user.id
+        text = message.text
+        role = "user"
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cursor.execute(
+            "INSERT INTO messages (user_id, role, content, date) VALUES (?, ?, ?, ?)",
+            (user_id, role, text, current_date)
+        )
+        conn.commit()
+
+        cursor.execute("SELECT role, content FROM messages WHERE user_id=? ORDER BY date ASC LIMIT 20", (user_id,))
+        row = cursor.fetchall()
+        messages = list(map(lambda x: {"role": x[0], "content": x[1]}, row))
+        print(messages)
+
+        response = send_to_gpt(messages)
+        role = response.choices[0].message.role
+        text = response.choices[0].message.content
+        response_text = text
         while len(response_text) > 0:
             response_chunk = response_text[:max_tg_msg_length]
             response_text = response_text[max_tg_msg_length:]
             bot.reply_to(message, response_chunk)
+
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cursor.execute(
+            "INSERT INTO messages (user_id, role, content, date) VALUES (?, ?, ?, ?)",
+            (user_id, role, text, current_date)
+        )
+        conn.commit()
     except Exception as e:
         logging.error(e)
         bot.reply_to(message, f"Произошла ошибка при обработке вашего запроса:\n{e}")
@@ -86,9 +111,14 @@ def echo_message(message):
 @bot.message_handler(commands=['reset'])
 @restricted_access
 def reset(message):
-    # user_id = message.from_user.id
-    messages.clear()
-    bot.reply_to(message, "Кеш сообщений сброшен.")
+    try:
+        user_id = message.from_user.id
+        bot.reply_to(message, "Кеш сообщений сброшен.")
+        cursor.execute("DELETE FROM messages WHERE user_id = ?", (user_id,))
+        conn.commit()
+    except Exception as e:
+        logging.error(e)
+        bot.reply_to(message, f"Произошла ошибка при обработке вашего запроса:\n{e}")
 
 
 if __name__ == "__main__":
