@@ -1,6 +1,7 @@
+import logging
 import os
-import telebot
 
+import telebot
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -16,6 +17,9 @@ allowed_users = os.getenv("ALLOWED_USERS")
 max_tg_msg_length = 4096
 
 messages = []
+
+logging.basicConfig(filename="main.log", level=logging.INFO,
+                    format="[%(asctime)s] [%(name)s] [%(levelname)s] > %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 if allowed_users and allowed_users.strip():
     allowed_users_list = [int(user_id.strip()) for user_id in allowed_users.split(",")]
@@ -58,7 +62,7 @@ def send_to_gpt(message):
 @bot.message_handler(commands=['start'])
 @restricted_access
 def start(message):
-    user_id = message.from_user.id
+    # user_id = message.from_user.id
     bot.reply_to(message, "Привет, Я - виртуальный помощник, готов помочь ответить на ваши вопросы и обсудить "
                           "различные темы. Чем могу помочь?")
 
@@ -66,22 +70,29 @@ def start(message):
 @bot.message_handler(func=lambda message: message.text is not None and '/' not in message.text)
 @restricted_access
 def echo_message(message):
-    user_id = message.from_user.id
-    send_to_gpt(message.text)
-    response_text = messages[-1]["content"]
-    while len(response_text) > 0:
-        response_chunk = response_text[:max_tg_msg_length]
-        response_text = response_text[max_tg_msg_length:]
-        bot.reply_to(message, response_chunk)
+    # user_id = message.from_user.id
+    try:
+        send_to_gpt(message.text)
+        response_text = messages[-1]["content"]
+        while len(response_text) > 0:
+            response_chunk = response_text[:max_tg_msg_length]
+            response_text = response_text[max_tg_msg_length:]
+            bot.reply_to(message, response_chunk)
+    except Exception as e:
+        logging.error(e)
+        bot.reply_to(message, f"Произошла ошибка при обработке вашего запроса:\n{e}")
 
 
 @bot.message_handler(commands=['reset'])
 @restricted_access
 def reset(message):
-    user_id = message.from_user.id
+    # user_id = message.from_user.id
     messages.clear()
     bot.reply_to(message, "Кеш сообщений сброшен.")
 
 
 if __name__ == "__main__":
-    bot.polling(none_stop=True)
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        logging.error(e)
