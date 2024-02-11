@@ -14,7 +14,7 @@ model_gpt = os.getenv("MODEL_GPT")
 max_tokens = os.getenv("MAX_TOKENS") if os.getenv("MAX_TOKENS") else None
 temperature = os.getenv("TEMPERATURE") if os.getenv("TEMPERATURE") else None
 
-bot = telebot.TeleBot(token=os.getenv("TELEGRAM_BOT_TOKEN"), parse_mode="MARKDOWN")
+bot = telebot.TeleBot(token=os.getenv("TELEGRAM_BOT_TOKEN"), parse_mode="Markdown")
 allowed_users = os.getenv("ALLOWED_USERS")
 max_tg_msg_length = 4096
 
@@ -86,7 +86,6 @@ def echo_message(message):
         cursor.execute("SELECT role, content FROM messages WHERE user_id=? ORDER BY date ASC LIMIT 20", (user_id,))
         row = cursor.fetchall()
         messages = list(map(lambda x: {"role": x[0], "content": x[1]}, row))
-        print(messages)
 
         response = send_to_gpt(messages)
         role = response.choices[0].message.role
