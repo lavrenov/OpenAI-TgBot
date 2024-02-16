@@ -99,14 +99,14 @@ async def message_handler(message: Message) -> None:
             sql = "INSERT INTO messages (user_id, role, content, date) VALUES (?, ?, ?, ?)"
             cursor.execute(sql, (user_id, role, text, current_date))
             conn.commit()
-        await message.answer(text)
+        await message.answer(text, parse_mode=ParseMode.MARKDOWN)
     except Exception as e:
         logging.error(e)
         await message.answer(f"Произошла ошибка при обработке вашего запроса:\n{e}")
 
 
 async def main() -> None:
-    bot = Bot(telegram_bot_token, parse_mode=ParseMode.HTML)
+    bot = Bot(telegram_bot_token)
     await dp.start_polling(bot)
 
 
