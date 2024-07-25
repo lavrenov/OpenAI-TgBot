@@ -31,7 +31,10 @@ if allowed_users and allowed_users.strip():
 else:
     allowed_users = {}
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(
+    base_url=os.getenv("OPENAI_BASE_URL"),
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 model_gpt = os.getenv("MODEL_GPT")
 max_tokens = os.getenv("MAX_TOKENS") if os.getenv("MAX_TOKENS") else None
 temperature = os.getenv("TEMPERATURE") if os.getenv("TEMPERATURE") else None
