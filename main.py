@@ -102,7 +102,12 @@ async def message_handler(message: Message) -> None:
             sql = "INSERT INTO messages (user_id, role, content, date) VALUES (?, ?, ?, ?)"
             cursor.execute(sql, (user_id, role, text, current_date))
             conn.commit()
-        await message.answer(text, parse_mode=ParseMode.MARKDOWN)
+
+        if len(text) > 4096:
+            for x in range(0, len(text), 4096):
+                await message.answer(text[x:x + 4096], parse_mode=ParseMode.MARKDOWN)
+        else:
+            await message.answer(text, parse_mode=ParseMode.MARKDOWN)
     except Exception as e:
         logging.error(e)
         await message.answer(f"Произошла ошибка при обработке вашего запроса:\n{e}")
