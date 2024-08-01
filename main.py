@@ -51,6 +51,24 @@ def send_to_gpt(messages):
     return completion
 
 
+def split_message(text, max_length=4096):
+    words = text.split(' ')
+    current_part = ''
+    parts = []
+
+    for word in words:
+        if len(current_part) + len(word) + 1 <= max_length:
+            current_part += ' ' + word if current_part else word
+        else:
+            parts.append(current_part)
+            current_part = word
+
+    if current_part:
+        parts.append(current_part)
+
+    return parts
+
+
 @dp.message(CommandStart(), F.from_user.id.in_(allowed_users))
 async def command_start_handler(message: Message) -> None:
     try:
@@ -103,11 +121,9 @@ async def message_handler(message: Message) -> None:
             cursor.execute(sql, (user_id, role, text, current_date))
             conn.commit()
 
-        if len(text) > 4096:
-            for x in range(0, len(text), 4096):
-                await message.answer(text[x:x + 4096], parse_mode=ParseMode.MARKDOWN)
-        else:
-            await message.answer(text, parse_mode=ParseMode.MARKDOWN)
+        message_parts = split_message(text)
+        for part in message_parts:
+            await message.answer(part, parse_mode=ParseMode.MARKDOWN)
     except Exception as e:
         logging.error(e)
         await message.answer(f"Произошла ошибка при обработке вашего запроса:\n{e}")
